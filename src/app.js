@@ -4,10 +4,18 @@ const cityInput = document.querySelector('#cityInput');
 const salaryInput = document.querySelector('#salaryInput');
 const addButtonSave = document.querySelector('#addButtonSave');
 
+const idEditInput = document.querySelector('#idEditInput');
+const nameEditInput = document.querySelector('#nameEditInput');
+const cityEditInput = document.querySelector('#cityEditInput');
+const salaryEditInput = document.querySelector('#salaryEditInput');
+
 const host = 'http://localhost:3000/';
 const endpoint = 'employees';
 const url = host + endpoint;
 
+getEmployees();
+
+function getEmployees(){
 fetch(url)
 .then( (response) => response.json() )
 .then( (result) => {
@@ -15,7 +23,7 @@ fetch(url)
     loadEmployees(result);
 })
 .catch( (err) => console.log(err));
-
+}
 
 function loadEmployees(dolgozoLista) {
     dolgozoLista.forEach((dolgozo) => {
@@ -33,12 +41,62 @@ function loadEmployees(dolgozoLista) {
         tr.append(tdName);
         tr.append(tdCity);
         tr.append(tdSalary);
+        tr.append(generateDeleteButton(dolgozo.id));
+        tr.append(generateModifyButton(dolgozo));
     });
 }
+function generateDeleteButton(id){
+    let td = document.createElement('td');
+    let button = document.createElement('button');
+    button.textContent = 'Törlés';
+    button.classList = 'btn btn-primary';
+    button.addEventListener('click', () =>  {
+        console.log(id)
+        deleteEmployee(id);
+        dolgozoTorzs.textContent = '';    
+        getEmployees();
+    });
+    td.append(button);
+    return td;
+}
+
+function generateModifyButton(employee){
+    let td = document.createElement('td');
+    let button = document.createElement('button');
+    button.textContent = 'Módosítás';
+    button.classList = 'btn btn-primary';
+    button.addEventListener('click', () =>  {
+        console.log(employee.id)
+
+        idEditInput.value = employee.id;
+        nameEditInput.value = employee.name;
+        cityEditInput.value = employee.city;
+        salaryEditInput.value = employee.salary;
+
+        dolgozoTorzs.textContent = '';    
+        getEmployees();
+    });
+    td.append(button);
+    return td;
+}
+
+
+function deleteEmployee(id){
+    //localhost:3000/employee/3
+    let fullulr= url + '/' + id;
+
+    fetch(fullurl,{
+        method: 'delete'
+    })
+    .catch(err => console.log(err));
+}
+
 addButtonSave.addEventListener('click', () => {
     console.log('Hozzáadás...')
     addEmployee();
     clearInputElements();
+    dolgozoTorzs.textContent='';
+    getEmployees();
 });
 
 function addEmployee() {
